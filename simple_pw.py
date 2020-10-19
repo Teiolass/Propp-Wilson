@@ -2,8 +2,8 @@ import numpy as np
 import numpy.random as rnd
 import matplotlib.pyplot as plt
 
-N = 13
-iterations = 1000
+N = 26
+iterations = 50000
 initial_depth = 0
 
 ## target distribution
