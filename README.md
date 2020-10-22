@@ -21,3 +21,5 @@ A short description of the scripts:
 - `ising_depth.py`: this one runs multiple ising simulations and plot the log of
   the steps needed for coalescence as a function of beta. It works more or less
   for N<40 and beta<0.3.
+- `ising_frac.py`: same as above, but plots the fraction of +1 as a function of
+  beta.
