@@ -12,6 +12,9 @@ A short description for the scripts:
   chains, with the same distributions of `vanilla_mcmc`.
 - `false_pw.py`: same as `simple_pw`, but this one regenerates all the random
   values. It shouldn't work.
-- `monotone_pw.py` implements the sandwiching method with a linear chain.
-- `monotone_legth_pw.py`  same as above, but plots the numbers of steps needed
+- `monotone_pw.py`: implements the sandwiching method with a linear chain.
+- `monotone_legth_pw.py`:  same as above, but plots the numbers of steps needed
   for convergence.
+- `simple_ising.py`: it is a simple ising model, with the pw algorithm. Prints
+  the log of the number of steps needed for coalescence and the ratio between
+  the number of +1 and the total number of nodes.
