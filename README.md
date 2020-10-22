@@ -1,7 +1,7 @@
 This repo is for the code written for the Computational Lab at University of
 Pisa.
 This is a work in progress, the main topic will be the implementation of the
-Propp-Wilson for the study of the Ising model.
+Propp-Wilson algorithm for the study of the Ising model.
 
 Keywords: Propp-Wilson, Markov chain, MCMC, Coupling from the past, Ising model
 
