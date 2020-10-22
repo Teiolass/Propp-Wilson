@@ -18,3 +18,6 @@ A short description of the scripts:
 - `simple_ising.py`: it is a simple ising model, with the pw algorithm. Prints
   the log of the number of steps needed for coalescence and the ratio between
   the number of +1 and the total number of nodes.
+- `ising_depth.py`: this one runs multiple ising simulations and plot the log of
+  the steps needed for coalescence as a function of beta. It works more or less
+  for N<40 and beta<0.3.
