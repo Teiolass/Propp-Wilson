@@ -2,11 +2,13 @@ import numpy as np
 import numpy.random as rnd
 import matplotlib.pyplot as plt
 
-N = 4
+N = 15
 beta = 0.001
-beta_step = 0.0007
+beta_step = 0.002
 initial_log_depth = 1
 mult_factor = 2
+
+save_file = 'output.csv'
 
 initial_depth = 2**initial_log_depth
 
@@ -43,8 +45,11 @@ def check_coalescence(M1, M2):
                 return False
     return True
 
+with open(save_file, 'a') as ff:
+    ff.write('----  generated with ising_frac.py, with N={}\n'.format(N))
 
-plt.axis([0, 0.6, -.05, 1.05])
+plt.axis([0, 0.8, -.05, 1.05])
+plt.grid(True)
 
 while True:
     log_depth = initial_log_depth
@@ -75,6 +80,8 @@ while True:
     s = np.sum(up)
     frac = (s / N**2 + 1) / 2
     plt.scatter(beta, frac, c='#6666ff', marker='x')
+    with open(save_file, 'a') as ff:
+        ff.write('{};{}\n'.format(beta, frac))
     plt.pause(0.00001)
     beta += beta_step
 
