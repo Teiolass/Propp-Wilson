@@ -2,9 +2,9 @@ import numpy as np
 import numpy.random as rnd
 import matplotlib.pyplot as plt
 
-N = 15
+N = 6
 beta = 0.001
-beta_step = 0.002
+beta_step = 0.0005
 initial_log_depth = 1
 mult_factor = 2
 
@@ -15,15 +15,13 @@ initial_depth = 2**initial_log_depth
 def count_chi(M, x, y):
     acc = 0
     if x > 0:
-        if y > 0:
-            acc += M[x-1,y-1]
-        if y < N-1:
-            acc += M[x-1,y+1]
+            acc += M[x-1,y]
+    if y > 0:
+            acc += M[x,y-1]
+    if y < N-1:
+            acc += M[x,y+1]
     if x < N-1:
-        if y > 0:
-            acc += M[x+1,y-1]
-        if y < N-1:
-            acc += M[x+1,y+1]
+            acc += M[x+1,y]
     return acc
 
 def get_prob(M, x, y):
