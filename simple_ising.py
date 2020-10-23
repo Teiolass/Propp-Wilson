@@ -10,12 +10,16 @@ initial_depth = 2**log_depth
 
 def count_chi(M, x, y):
     acc = 0
-    for i in range(-1, 2):
-        for j in range(-1, 2):
-            xx = x + i
-            yy = y + j
-            if xx >= 0 and yy >= 0 and xx < N and yy < N and (xx,yy) != (0,0):
-                acc += M[xx, yy]
+    if x > 0:
+        if y > 0:
+            acc += M[x-1,y-1]
+        if y < N-1:
+            acc += M[x-1,y+1]
+    if x < N-1:
+        if y > 0:
+            acc += M[x+1,y-1]
+        if y < N-1:
+            acc += M[x+1,y+1]
     return acc
 
 def get_prob(M, x, y):
