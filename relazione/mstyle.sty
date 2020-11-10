@@ -1,0 +1,24 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mstyle}[]
+
+\usepackage{enumerate}
+\usepackage{amsmath}
+
+\newcounter{basicblock}[section]
+\renewcommand{\thebasicblock}{\thesection.\arabic{basicblock}}
+\newenvironment{block}[1][]
+{\refstepcounter{basicblock}\par\medskip\noindent\textbf{#1~\thebasicblock}\quad}
+{ 
+\medskip}
+ 
+\newenvironment{nlist}[1][i]
+{\begin{enumerate}[(#1)]
+    \setlength{\itemsep}{0pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\topsep}{0pt}
+    \setlength{\parsep}{0pt}}
+{\end{enumerate}}
+
+\newcommand{\vect}{\overrightarrow}
+\renewcommand{\implies}{\Rightarrow}
+\def\code#1{\texttt{#1}}

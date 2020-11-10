@@ -1,0 +1,64 @@
+\documentclass[]{marticle}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{amssymb}
+\usepackage{mstyle}
+
+\title{\textbf{\Huge Relazione di Laboratorio Computazionale}}
+\date{}
+
+
+\begin{document}
+\maketitle
+
+\section*{Abstract}
+In questa relazione prenderemo in considerazione il problema di estrarre
+campioni di valori casuali data una certa distribuzione di probabilita` discreta.
+Supporremo di sapere generare variabili uniformi sull'intervallo $[0,1]$, che
+verranno implementate operativamente come le variabili generate dalla libreria
+\code{numpy}.
+
+Una prima soluzione del problema \`e quella di dividere $[0,1]$ in intervalli di
+lunghezza pari a ciascuna componente del vettore di probabilit\`a, e scegliere
+il risultato in funzione dell'intervallo a cui appartiene una variabile
+uniforme. Questo presenta diversi inconvenienti: il metodo infatti richiede un
+numero di somme proporzionale al numero di componenti del vettore di
+probabilit\`a. Questo potrebbe essere intrattabile quando molto grande. Inoltre
+spesso il vettore di probabilit\`a \`e noto solo a meno di un coefficiente di
+normalizzazione, il cui calcolo richiederebbe di nuovo $O(n)$ somme. 
+
+Uno dei metodi pi\`u utilizzati per ovviare a questi problemi \`e il metodo di
+Monte Carlo (abbreviato spesso con MCMC, Markov Chain Monte Carlo), che consiste
+nella simulazione di una camminata su una catena di Markov con distribuzione
+invariante la distribuzione data. Dopo un numero sufficiente di step, la
+frequenza di visita di un nodo sar\`a arbitrariamente vicina a quella voluta. In
+questo caso per\`o il numero di passi necessari ad una determinata distribuzione
+non \`e noto a priori ed \`e di difficile calcolo.
+
+Si andr\`a dunque a presentare l'algoritmo di Propp-Wilson, una modifica del
+MCMC che ha il vantaggio di ottenere la distribuzione esatta e di terminare una
+volta raggiunta questa. Applicheremo tale algoritmo al modello di Ising, una
+modellizzazione del comportamento magnetico della materia.
+
+\section{Il modello di Ising}
+Sia $G=(V,E)$ un grafo. I vertici andranno a rappresentare i singoli atomi di un
+materiale, e gli archi indicano quali atomi interagiscono fra loro. Ad ogni
+atomo viene quindi associato uno spin che pu\`o essere $+1$ o $-1$. Una
+configurazione \`e quindi una funzione $f\colon V \rightarrow \{+1, -1\}$. A
+ciascuno di questi modelli si associa l'energia 
+\[
+    H(f) = \sum_{(x,y)\in E} f(x)f(y)
+\].
+Inoltre viene dato un parametro reale del sistema $beta \geq 0$ detta
+temperatura inversa. Il modello di ising associa ad ogni configurazione $f \in
+\{+1, -1\}^V$ la probabilit\`a
+\[
+    \pi(f) = \frac{1}{Z} \exp(-\beta H(f))
+\]
+Dove $Z$ \`e il coefficiente di normalizzazione pari a
+\[
+    Z = \sum_{f \in \{+1,-1\}^V} \exp(-\beta H(f))
+\]
+
+
+\end{document}
