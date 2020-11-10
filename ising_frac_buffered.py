@@ -2,27 +2,26 @@ import numpy as np
 import numpy.random as rnd
 import matplotlib.pyplot as plt
 
-N = 2
-beta = 0.001
+N = 3
+beta = 0.35
 beta_step = 0.001
 initial_log_depth = 1
 mult_factor = 2
-buffer_size = 20
+buffer_size = 30
 
 initial_depth = 2**initial_log_depth
+save_file = 'output_bis.csv'
 
 def count_chi(M, x, y):
     acc = 0
     if x > 0:
-        if y > 0:
-            acc += M[x-1,y-1]
-        if y < N-1:
-            acc += M[x-1,y+1]
+            acc += M[x-1,y]
+    if y > 0:
+            acc += M[x,y-1]
+    if y < N-1:
+            acc += M[x,y+1]
     if x < N-1:
-        if y > 0:
-            acc += M[x+1,y-1]
-        if y < N-1:
-            acc += M[x+1,y+1]
+            acc += M[x+1,y]
     return acc
 
 def get_prob(M, x, y):
@@ -45,7 +44,10 @@ def check_coalescence(M1, M2):
     return True
 
 
-plt.axis([0, 0.6, -.05, .5])
+plt.axis([0.35, 0.55, -.05, .5])
+
+with open(save_file, 'a') as ff:
+    ff.write('----  generated with ising_frac_buffered.py, with N={}\n'.format(N))
 
 while True:
     log_depth = initial_log_depth
@@ -77,10 +79,14 @@ while True:
                 rarr.resize(depth)
         s = np.sum(up)
         frac = (s / N**2 + 1) / 2
+        with open(save_file, 'a') as ff:
+            ff.write('{};{}\n'.format(beta, frac))
         tot += (frac - 0.5)**2
     tot /= (buffer_size-1)
     plt.scatter(beta, tot, c='#6666ff', marker='x')
     plt.pause(0.00001)
     beta += beta_step
+    if beta > 0.55:
+        beta = 0.35
 
 plt.show()
