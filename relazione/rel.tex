@@ -11,6 +11,9 @@
 \begin{document}
 \maketitle
 
+\textbf{Le parti in grassetto sono commenti generici o placeholder perch\`e
+QUESTA \`E UNA BOZZA!}
+
 \section*{Abstract}
 In questa relazione prenderemo in considerazione il problema di estrarre
 campioni di valori casuali data una certa distribuzione di probabilita` discreta.
@@ -49,7 +52,7 @@ ciascuno di questi modelli si associa l'energia
 \[
     H(f) = \sum_{(x,y)\in E} f(x)f(y)
 \].
-Inoltre viene dato un parametro reale del sistema $beta \geq 0$ detta
+Inoltre viene dato un parametro reale del sistema $\beta \geq 0$ detta
 temperatura inversa. Il modello di ising associa ad ogni configurazione $f \in
 \{+1, -1\}^V$ la probabilit\`a
 \[
@@ -59,6 +62,96 @@ Dove $Z$ \`e il coefficiente di normalizzazione pari a
 \[
     Z = \sum_{f \in \{+1,-1\}^V} \exp(-\beta H(f))
 \]
+
+L'obiettivo che ci prefiggiamo \`e quello di estrarre un campione da
+$\{+1,-1\}^V$ con probabilit\`a $\pi$.
+
+\section{Metodo di Monte Carlo}
+
+\textbf{Non so se ha davvero senso questa parte}
+
+Come prima cosa, data una distribuzione $\pi$ su un insieme $\Omega$, cerchiamo
+una matrice di transizione $P$ per una catena di Markov omogenea che abbia
+$\pi$ come misura invariante. Per farlo chiediamo una condizione pi\`u forte su
+$P$, cio\`e la reversibilit\`a, ovvero si vuole che $\pi (i)P_{i,j}=\pi
+(j)P_{j,i}$. Se la matrice $P$ \`e irriducibile e aperiodica, data una
+distribuzione iniziale $\pi_0$, la distribuzione di probabilit\`a dopo $n$ passi
+$\pi_n = \pi_0 P^n$ converge a $\pi$
+
+Cerchiamo allora le matrici del tipo $P_{i,j} = A_{i,j} Q_{i,j}$ per $i\neq j$,
+dove la matrice $Q$ \`e irriducibile e viene detta matrice generatrice dei
+candidati, e $A$ \`e da terminare in modo tale che $P$ abbia le propriet\`a
+richieste e $0\leq A \leq 1$. Le componenti $P_{i,i}$ sono determinate in
+maniera tale che $P$ sia stocastica.  A livello di interpretazione si pu\`o
+pensare che a ogni step si sceglie vertice candidato a cui passare con
+probabilit\`a dettata da $Q$ e poi si esegue il passagio con probabilit\`a
+dettata da $A$, altrimenti si rimane nel vertice di partenza. Per questo motivo
+$A$ \`e la matrice delle probabilit\`a di accettazione. 
+
+Generalmente si sceglie $A$ della forma
+\[
+    A_{i,j} = \frac{S_{i,j}}{1+T_{i,j}}
+\]
+con
+\[
+    T_{i, j} = \frac{\pi{i} Q_{i,j}}{\pi{j} Q_{j,i}}
+\]
+e $S$ una matrice simmetrica.
+L'algoritmo di Metropoli-Hastings sceglie
+\[
+    A_{i,j} = \min (1, \frac{\pi(i)}{\pi(j)})
+\]
+. In questo modo si determina una $P$ con tutte le propriet\`a richieste.
+
+\textbf{Forse un qualcosa sul Gibbs Sampler?}
+
+\section{Coupling from the past}
+
+In questa sezione svilupperemo un metodo per estrarre un campione con una
+probabilit\`a esatta $\pi$, data $P$ una matrice di transizione irriducibile e
+aperiodica Su un insieme finito di stati $S=\setof{s_1,\dots,s_n}$ e con
+probabilit\`a invariante $\pi$. Possiamo associare alla catena di Markov
+definita da $P$ una funzione di transizione 
+\[
+    f\colon S\times [0,1] \longrightarrow S
+\]
+tale che se $U$ \`e una variabile uniforme sull'intervallo $[0,1]$, allora 
+\[
+    \prob{f(s_i,U)=s_j}=P_{i,j} \qquad \forall s_i,s_j \in S.
+\]
+Questo pu\`o essere fatto, per esempio \textbf{nel modo ovvio}.
+
+Siano $U_n$ variabili uniformi su $[0,1]$ per ogni $n\in \Z$. Costruiamo allora
+delle sequenze $X^r_m(i)$ con $i = 1,\dots,n$, $r\leq 0$ e $m \geq r$ interi nel
+modo seguente:
+\[
+    X^r_r(i) = s_i
+\]
+\[
+    X^r_{m+1}(i) = f(X^r_m(i), U_m).
+\]
+
+Sia ora 
+\[
+    \tau^-=\max(\ r \st X^r_0(1) = \dots = X^r_0(n))
+\]
+e definiamo $Y = X^r_0(1)$. Vogliamo verificare che $Y$ ha distribuzione pari a
+$\pi$.
+
+\textbf{Probabilmente questo ci va.}
+
+\textbf{Probabilmente ci vanno anche dei controesempi per dire che il coupling
+in the future non funziona e che gli $U$ devono essere sempre gli stessi, c'\`e
+su Haggstrom pp.81-82.}
+
+\textbf{Mettere i disegnini che sono strabelli?}
+\section{Sandwiching}
+
+Il metodo presentato sopra \`e funzionante e risolve gli scopi che ci eravamo
+prefissi, tuttavia simulare tutte le $n$ catene di Markov \`e praticamente
+impossibile per $n$ grandi. In questa sezione ci occuperemo di migliorare il
+metodo per renderlo computazionalmente pi\`u leggero.
+
 
 
 \end{document}
