@@ -135,8 +135,10 @@ Sia ora
 \[
     \tau^-=\max(\ r \st X^r_0(1) = \dots = X^r_0(n))
 \]
-e definiamo $Y = X^r_0(1)$. Vogliamo verificare che $Y$ ha distribuzione pari a
-$\pi$.
+e definiamo $Y = X^{\tau^-}_0(1)$. La condizione con cui \`e stato definito $\tau^-$
+\`e detta coalescenza.
+
+Vogliamo verificare che $Y$ ha distribuzione pari a $\pi$.
 
 \textbf{Probabilmente questo ci va.}
 
@@ -151,6 +153,21 @@ Il metodo presentato sopra \`e funzionante e risolve gli scopi che ci eravamo
 prefissi, tuttavia simulare tutte le $n$ catene di Markov \`e praticamente
 impossibile per $n$ grandi. In questa sezione ci occuperemo di migliorare il
 metodo per renderlo computazionalmente pi\`u leggero.
+
+In questo caso supporremo di avere un ordine parziale tra gli stati in $S$ che
+denoteremo con il simbolo $\preceq$. Richiediamo che la funzione di transizione
+rispetti la condizione di monotonia
+\[
+    f(s_i, u) \leq f(s_j, u) \qquad \forall s_i \preceq s_j
+\]
+e che esistano in $S$ un massimo e un minimo, che senza perdita di generalit\`a
+chiameremo $s_1$ e $s_n$. Si verifica facilmente che la coalescenza di $X^r_0$
+si verifica se e solo se $X^r_0(1) = X^r_0(n)$. Inoltre il tempo di coalescenza
+$\tau^-$ \`e quasi certamente finito. 
+
+\textbf{Forse anche questa cosa si dovrebbe fare...}
+
+
 
 
 
