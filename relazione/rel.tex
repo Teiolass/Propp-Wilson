@@ -99,11 +99,27 @@ con
 e $S$ una matrice simmetrica.
 L'algoritmo di Metropoli-Hastings sceglie
 \[
-    A_{i,j} = \min (1, \frac{\pi(i)}{\pi(j)})
+    A_{i,j} = \min (1, \frac{\pi(i)}{\pi(j)}).
 \]
-. In questo modo si determina una $P$ con tutte le propriet\`a richieste.
+ In questo modo si determina una $P$ con tutte le propriet\`a richieste.
 
-\textbf{Forse un qualcosa sul Gibbs Sampler?}
+\section{Il Gibbs sampler}
+
+\textbf{come gestico le traduzioni?}
+Vogliamo specializzare il MCMC ai casi in cui l'insime degli stati sia un
+insieme di funzioni (con dominio e codominio finiti). Questa capita nel modello
+di Ising che studieremo in seguito, per esempio. Abbiamo dunque un processo
+stocastico a valori in $E=\Lambda^V$ per certi insiemi $\Lambda$ e $V$. 
+
+Con il Gibbs sampler il processo passa da uno stato $X_n=f$ a $X_{n+1}=g$ con le
+seguenti regole: sia $v$ un elemento scelto in modo casuale uniforme da $V$.
+Allora $f$ e $g$ devono coincidere su $V\setminus\setof{v}$. Il punto $g(v)$
+assume il valore $\lambda$ con probabilit\`a $\prob{X(v)=\lambda \ |\ 
+X(V\setminus\setof{v})=f(V\setminus\setof{v})}$. \textbf{Si verifica che} la
+distribuzione cercata soddisfa la condizione di reversibilit\`a e che la catena
+risultante \`e irriducibile e aperiodica. Dunque si ha la converganza del metodo
+di Monte Carlo.
+
 
 \section{Coupling from the past}
 
@@ -138,7 +154,9 @@ Sia ora
 e definiamo $Y = X^{\tau^-}_0(1)$. La condizione con cui \`e stato definito $\tau^-$
 \`e detta coalescenza.
 
-Vogliamo verificare che $Y$ ha distribuzione pari a $\pi$.
+Si verifica che $Y$ ha distribuzione pari a $\pi$.
+
+Questo metodo \`e noto come algoritmo di Propp-Wilson.
 
 \textbf{Probabilmente questo ci va.}
 
@@ -153,7 +171,7 @@ Il metodo presentato sopra \`e funzionante e risolve gli scopi che ci eravamo
 prefissi, tuttavia simulare tutte le $n$ catene di Markov \`e praticamente
 impossibile per $n$ grandi. In questa sezione ci occuperemo di migliorare il
 metodo per renderlo computazionalmente pi\`u leggero.
-
+ 
 In questo caso supporremo di avere un ordine parziale tra gli stati in $S$ che
 denoteremo con il simbolo $\preceq$. Richiediamo che la funzione di transizione
 rispetti la condizione di monotonia
@@ -167,8 +185,30 @@ $\tau^-$ \`e quasi certamente finito.
 
 \textbf{Forse anche questa cosa si dovrebbe fare...}
 
+\section{Implementazione del modello di Ising}
 
+Andiamo ad utilizzare le tecnice viste al modello di Ising. Innanzi tutto ci
+ridurremo al caso in cui il grafo \`e una griglia quadrata di lato $l$. Sui
+possibili stati di un grafo, consideriamo la relazione d'ordine definita da:
+$f \preceq g$ se e solo se per ogni vertice $v$ si ha che $f(v) \leq g(v)$.
+Con questa realzione si hanno due stati particolari, le due funzioni costanti,
+che sono il massimo e il minimo. Lo scopo \`e quello di simulare le catene di
+Markov che partono da questo stato. 
 
+Per farlo prenderemo in considerazione il modello di Gibbs. Ad ogni step di
+configurazione $f$, si sceglie in modo casuale uniforme un vertice $v$, e lo si
+pone a $+1$ con probabilit\`a
+\[
+    \frac{2\beta\sum_{(v,v')\in E} f(v')} {2\beta\sum_{(v,v')\in E}
+    f(v')+1}.
+\]
+Lo si pone $-1$ altrimenti. Questa catena di Markov \`e monotona, infatti i
+vertici che venogono aggiornati sono gli stessi per la catena che parte dal
+massimo e quella che parte dal minimo, inoltre vengono aggiornati nello stesso
+modo. \textbf{Per una cosa vista perlando del Gibbs sampler}, la distribuzione
+stazionaria \`e quella del mmodello di Ising. 
+
+\textbf{Viene fornito di seguito il codice per l'implementazione.}
 
 
 \end{document}
