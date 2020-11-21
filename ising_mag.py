@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.random as rnd
 import matplotlib.pyplot as plt
-import pickle
 
 class Random_gen:
     def __init__(self, N):
