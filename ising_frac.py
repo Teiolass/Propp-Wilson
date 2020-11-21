@@ -2,9 +2,9 @@ import numpy as np
 import numpy.random as rnd
 import matplotlib.pyplot as plt
 
-N = 10
-beta = 0.001
-beta_step = 0.0005
+N = 30
+beta = 0.20
+beta_step = 0.0
 initial_log_depth = 1
 mult_factor = 2
 
@@ -49,7 +49,8 @@ with open(save_file, 'a') as ff:
 plt.axis([0, 0.8, -.05, 1.05])
 plt.grid(True)
 
-while True:
+# while True:
+for _ in range(100):
     log_depth = initial_log_depth
     depth = initial_depth
     rarr = np.zeros((depth,), dtype=float)
@@ -84,4 +85,4 @@ while True:
     plt.pause(0.00001)
     beta += beta_step
 
-plt.show()
+# plt.show()
