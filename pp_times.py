@@ -63,29 +63,28 @@ def get_ising(N, beta):
         else:
             depth = max(depth+1, depth*2)
             ran.advance_depth(depth)
-    return up
+    return depth
 
 N = 10
 beta = 0.1
 beta_step = 0.03
-times = 10
-save_file = 'mag_out.csv'
+times = 20
 
-with open(save_file, 'a') as ff:
-    ff.write('----  generated with ising_mag.py, with N={}\n'.format(N))
-plt.axis([0, 0.8, 0, 1])
+color_fore = '#A64444'
+plt.xlim([0, 0.8])
+plt.yscale('log')
 plt.grid(True)
 
-while beta <= 0.8:
+while beta <= 0.5:
     sm = 0
     beta += beta_step
     for _ in range(times):
-        mag = np.abs(np.sum(get_ising(N, beta)) / (N*N))
-        sm += mag
-        with open(save_file, 'a') as ff:
-            ff.write('{};{}\n'.format(beta, mag))
-        plt.scatter(beta, mag, c='#03588C', marker='.')
-        plt.pause(0.001)
+        depth = get_ising(N, beta)
+        sm += depth
+        # plt.scatter(beta, depth, c='#03588C', marker='.')
+        # plt.pause(0.001)
     sm /= times
-    plt.scatter(beta, sm, c='#A60D36', marker='o')
+    plt.scatter(beta, sm, c=color_fore, marker='o')
     plt.pause(0.001)
+
+plt.show()

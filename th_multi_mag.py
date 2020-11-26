@@ -1,6 +1,15 @@
 import numpy as np
 import numpy.random as rnd
 import matplotlib.pyplot as plt
+from multiprocessing import Process, Queue, Pool
+from functools import partial
+
+N = 20
+beta = 0.1
+beta_step = 0.01
+times = 5
+n_proc = 3
+
 
 class Random_gen:
     def __init__(self, N):
@@ -20,19 +29,14 @@ def multiple_step(M, beta, rarr, narr):
     n = rarr.size
     N = M.shape[0]
     for i in range(n):
-        index = n - i - 1
-        r = rarr[index]
-        x = narr[index,0]
-        y = narr[index,1]
+        r = rarr[i]
+        x = narr[i,0]
+        y = narr[i,1]
         acc = 0
-        if x > 0:
-                acc += M[x-1,y]
-        if y > 0:
-                acc += M[x,y-1]
-        if y < N-1:
-                acc += M[x,y+1]
-        if x < N-1:
-                acc += M[x+1,y]
+        acc += M[(x-1)%N,y]
+        acc += M[x,(y-1)%N]
+        acc += M[x,(y+1)%N]
+        acc += M[(x+1)%N,y]
         a = np.exp( 2 * beta * acc )
         threshold = a / (a+1)
         old = M[x, y]
@@ -65,27 +69,46 @@ def get_ising(N, beta):
             ran.advance_depth(depth)
     return up
 
-N = 10
-beta = 0.1
-beta_step = 0.03
-times = 10
-save_file = 'mag_out.csv'
-
-with open(save_file, 'a') as ff:
-    ff.write('----  generated with ising_mag.py, with N={}\n'.format(N))
-plt.axis([0, 0.8, 0, 1])
-plt.grid(True)
-
-while beta <= 0.8:
-    sm = 0
-    beta += beta_step
+def get_magnetization(N, beta, times):
+    mag = 0
+    ret = []
     for _ in range(times):
-        mag = np.abs(np.sum(get_ising(N, beta)) / (N*N))
-        sm += mag
-        with open(save_file, 'a') as ff:
-            ff.write('{};{}\n'.format(beta, mag))
-        plt.scatter(beta, mag, c='#03588C', marker='.')
-        plt.pause(0.001)
-    sm /= times
-    plt.scatter(beta, sm, c='#A60D36', marker='o')
-    plt.pause(0.001)
+        ret.append((beta,np.abs(np.sum(get_ising(N, beta)) / (N*N))))
+    return ret
+
+def reader(que):
+    plt.axis([0, 0.8, 0, 1])
+    plt.grid(True)
+    while True:
+        x = que.get()
+        if x == 'DONE':
+            break
+        sm = 0
+        for (beta, mag) in x:
+            sm += mag
+        sm /= len(x)
+        plt.scatter(beta, sm, c='#A60D36', marker='.')
+        plt.pause(0.5)
+
+def feeder(queue, val):
+    queue.put(val)
+
+
+if __name__ == '__main__':
+    queue = Queue()
+    reader_p = Process(target=reader, args=((queue),))
+    reader_p.daemon = True
+    reader_p.start()    
+    pool = Pool(processes=n_proc-1)
+    mcallback = partial(feeder, queue) 
+    while beta <= 0.8:
+        beta += beta_step
+        res = pool.apply_async(get_magnetization, args=(N, beta, times),
+                callback=mcallback)
+    pool.close()
+    pool.join()
+    queue.put('DONE')
+    reader_p.join()
+    plt.show()
+
+

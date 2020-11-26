@@ -1,6 +1,5 @@
 import numpy as np
 import numpy.random as rnd
-import matplotlib.pyplot as plt
 
 class Random_gen:
     def __init__(self, N):
@@ -18,7 +17,6 @@ class Random_gen:
 
 def multiple_step(M, beta, rarr, narr):
     n = rarr.size
-    N = M.shape[0]
     for i in range(n):
         index = n - i - 1
         r = rarr[index]
@@ -34,9 +32,8 @@ def multiple_step(M, beta, rarr, narr):
         if x < N-1:
                 acc += M[x+1,y]
         a = np.exp( 2 * beta * acc )
-        threshold = a / (a+1)
-        old = M[x, y]
-        if r < threshold:
+        u = a / (a+1)
+        if r < u:
             M[x, y] = 1
         else:
             M[x, y] = -1
@@ -47,7 +44,6 @@ def check_coalescence(M1, M2):
             if M1[i,j] != M2[i,j]:
                 return False
     return True
-
 
 def get_ising(N, beta):
     depth = 1
@@ -64,28 +60,3 @@ def get_ising(N, beta):
             depth = max(depth+1, depth*2)
             ran.advance_depth(depth)
     return up
-
-N = 10
-beta = 0.1
-beta_step = 0.03
-times = 10
-save_file = 'mag_out.csv'
-
-with open(save_file, 'a') as ff:
-    ff.write('----  generated with ising_mag.py, with N={}\n'.format(N))
-plt.axis([0, 0.8, 0, 1])
-plt.grid(True)
-
-while beta <= 0.8:
-    sm = 0
-    beta += beta_step
-    for _ in range(times):
-        mag = np.abs(np.sum(get_ising(N, beta)) / (N*N))
-        sm += mag
-        with open(save_file, 'a') as ff:
-            ff.write('{};{}\n'.format(beta, mag))
-        plt.scatter(beta, mag, c='#03588C', marker='.')
-        plt.pause(0.001)
-    sm /= times
-    plt.scatter(beta, sm, c='#A60D36', marker='o')
-    plt.pause(0.001)

@@ -5,6 +5,9 @@
 \usepackage{amsmath}
 \usepackage{color}
 \usepackage{listings}
+\usepackage{graphicx}
+\usepackage{dsfont}
+\graphicspath{ {./images/} }
 
 \newcounter{basicblock}[section]
 \renewcommand{\thebasicblock}{\thesection.\arabic{basicblock}}
@@ -29,6 +32,7 @@
 \newcommand{\prob}[1]{\mathbb{P}\ [#1]}
 \def\code#1{\texttt{#1}}
 \newcommand{\Z}{\mathbb{Z}}
+\newcommand{\ind}{\mathds{1}}
 \newcommand{\st}{\ \$\ }
 \lstset{
     frame=l,

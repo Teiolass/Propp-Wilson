@@ -401,5 +401,120 @@ def get_ising(N, beta):
     return up
 \end{lstlisting}
 
+Provando a fare girare il programma a diversi valori di $\beta$ e della
+dimensione della griglia, notiamo che i tempi di attesa diventano molto lunghi
+per la temperatura inversa che si avvicina a $0.4$. In particolare notiamo che
+la crescita del numero di step necessari alla coalescenza \`e circa esponenziale
+in $\beta$. Per ovviare a questo problema, che a livello pratico impedisce alla
+computazione di terminare per molti valori dei parametri, nella prossima sezione
+si presenter\`a un miglioramento del metodo.
+
+\section{Random Cluster}
+
+\textbf{I risultati originali qui presentati sono stati trovati da Fortuin e
+Kasteleyn e sono stati usati da Propp e Wilson nel loro articolo. Purtoppo non
+sono riuscito a trovare l'originale. In Edwards-Sokal (1988) c'\`e una bozza di
+dimostrazione che ho sviluppato e riportato qui.}
+
+Consideriamo un grafo non orientato $G=(V,E)$, sia poi $\Sigma$ lo spazio delle
+possibili configurazioni di un modello di Ising su $G$, ossia $\setof{0,1}^V$.
+Siano inoltre $\Omega$ l'insieme dei sottografi di $G$, che identificheremo
+anche con l'insieme delle parti di $E$, e $\bar{\omega}\colon \Sigma
+\longrightarrow \Omega$ la funzione tale che 
+\[
+    \bar{\omega}(\sigma) = \setof{(i,j)\in E \st \sigma(i) = \sigma(j)}
+\]
+e che associa ad ogni configurazione $\sigma$ il pi\`u grande sottografo di $G$
+tale per cui $\sigma$ \`e costante sulle sue componenti connesse.
+
+Consideriamo la distribuzione di probabilit\`a definita su $\Sigma \times
+\Omega$ come
+\[
+    \mu_p(\sigma, \omega) = \frac{1}{Z_{FK}} p^{|\omega|} (1-p)^{|E| - |\omega|}
+    \ind(\omega \subseteq \bar{\omega})
+\]
+dove $Z_{FK}$ \`e un opportuno coefficiente di normalizzazione e $\ind$ vale $1$ se
+e solo se il suo argomento \`e vero e $0$ altrimenti.
+
+Calcoliamo le distribuzioni marginali su $\Omega$ e $\Sigma$.
+\begin{align*}
+    \mu^1_p(\sigma) =& \sum_{\omega\in\Omega} \mu_p(\sigma,\omega) = 
+    Z_{FK}^{-1} \sum_{\omega\subseteq\bar{\omega}(\sigma)}  p^{|\omega|}
+    (1-p)^{|E| - |\omega|} \\
+    =& Z_{FK}^{-1} \sum_{k=0}^{|\bar{\omega}(\sigma)|}
+        \binom{|\bar{\omega}(\sigma)|}{k}
+        p^k (1-p)^{|E| - k} \\
+    =& Z_{FK}^{-1} (1-p)^{|E|-|\bar{\omega}(\sigma)|}
+        \sum_{k=0}^{|\bar{\omega}(\sigma)|}  p^k
+        \binom{|\bar{\omega}(\sigma)|}{k}
+        (1-p)^{|\bar{\omega}(\sigma)| - k} \\
+    =& Z_{FK}^{-1} (1-p)^{|E|-|\bar{\omega}(\sigma)|}
+\end{align*}
+Notiamo che vale
+\[
+    |\bar{\omega}(\sigma)| = \sum_{(x,y)\in E} \frac{\sigma(x) \sigma(y) +
+    1}{2} = \frac{|E|}{2} - \frac{1}{2}H(\sigma)
+\]
+che ci permette di riscrivere
+\[
+    \mu^1_p(\sigma) = Z^{-1} \exp(-\beta H(\sigma))
+\]
+per $p = 1-e^{-2\beta}$ e per $Z$ che assorbe tutti i termini rimanenti (che non
+dipendono da $\sigma$), ritrovando cos\`i la distribuzione del modello di Ising.
+
+L'altra distribuzione marginale vale
+\[
+    \mu^2_p(\omega) = \nu(\omega) = \sum_{\omega\in\Omega} \mu_p(\sigma,\omega)
+    = Z_{FK}^{-1} p^{|\omega|} (1-p)^{|E| - |\omega|} |\setof{\sigma \st
+    \omega\subseteq\bar{\omega}(\sigma)}|
+\]
+Il numero di elementi di $\setof{\sigma \st
+\omega\subseteq\bar{\omega}(\sigma)}$ \`e pari al numero di $\sigma$ costanti
+sulle componenti connesse di $\omega$, cio\`e \`e il numero di possibili
+assegnazioni di $+1$ o $-1$ a esse. Se indichiamo con $C(\omega)$ il numero di
+componenti connesse di $\omega$,
+\[
+    \mu^2_p(\omega) = 
+    Z_{FK}^{-1} p^{|\omega|} (1-p)^{|E| - |\omega|} 2^{C(\omega)}.
+\]
+
+Come ulteriore passo, ci serve ancora conoscere la probabilit\`a condizionata
+$\mu_p[(\sigma,\omega)\ |\ (\cdot,\omega)]$, che vale 
+\[
+    \mu_p[(\sigma,\omega)\ |\ (\cdot,\omega)]
+    = \frac{\ind(\omega \subseteq \bar{\omega})} {2^{C(\omega)}}.
+\]
+Per cui, conoscendo $\omega$, la configurazione $\sigma$ \`e scelta
+uniformemente fra tutte le configurazioni costanti sulle componenti connesse di
+$\omega$.
+
+A questo punto abbiamo una strategia per trovare una configurazione del modello
+di Ising con la distribuzione desiderata: si costruisce un sottografo $\omega$
+con distribuzione $\nu$ con l'algoritmo di Propp-Wilson, poi ad ogni componente
+connessa di esso si associa il valore $+1$ o $-1$ con probabilit\`a $1/2$. A
+prima vista questa pu\`o sembrare una macchinosa complicazione, ma in realt\`a
+l'implentazione con i cluster richiede molti meno step per la coalescenza.
+
+\section{Implementazione con Random Cluster}
+
+Identifichiamo gli elementi di $\Omega$ (sottoinsiemi di $E$) con le funzioni da
+$E$ in  $\setof{0,1}$. Dati allora $\omega\in\Omega$ e $e\in E$, costruiamo
+$\omega_p$, $\omega_n\in\Omega$ tali che essi concordano con $\omega$ su tutto
+$E \setminus \setof{e}$, e inoltre $\omega_p(e) = 1$ mentre $\omega_n(e)=0$. 
+Poich\`e $\omega_p$ e $\omega_n$ differiscono per un solo arco, o hanno lo
+stesso numero di componenti connesse, o $\omega_p$ ha esattamente una componente
+connessa in meno di $\omega_n$. Questo permette di calcolare agevolmente la
+probabilit\`a condizionale del Gibbs sampler. Se $X$ \`e una variabile aleatoria
+a valori in $\Omega$ e distribuzione $\nu$,
+\[
+    \prob{X=\omega_p \ |\ X(e')=\omega(e') \ \forall e' \neq e} = 
+    \frac{\nu(\omega_p)}{\nu(\omega_p)+\nu(\omega_n)} = 
+    \begin{cases}
+        p \text{\quad se $C(\omega_p) \neq C(\omega_n)$}\\
+        \frac{p}{2-p} \text{\quad altrimenti}.
+    \end{cases}
+\]
+
+
 
 \end{document}
