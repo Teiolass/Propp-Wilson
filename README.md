@@ -5,6 +5,8 @@ Propp-Wilson algorithm for the study of the Ising model.
 
 Keywords: Propp-Wilson, Markov chain, MCMC, Coupling from the past, Ising model
 
+[HERE](relazione/la_relazione.pdf) you can find the report I wrote (in Italian).
+
 
 A short description of the scripts:
 
