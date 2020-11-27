@@ -24,7 +24,7 @@ A short description of the scripts:
 - `multi_ising_mag.py`: same as `ising_mag`, but can run on multiple processors
   at the same time.
   
-**Warning:**: I haven't reverified the next ones! They may not work.
+**Warning:** I haven't reverified the next ones! They may not work.
 
 - `vanilla_mcmc.py`: here I use a simple Monte Carlo method with Markov Chains
   for generating a target distribution over a finite set of states.
