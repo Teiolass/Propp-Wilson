@@ -402,12 +402,19 @@ def get_ising(N, beta):
 \end{lstlisting}
 
 Provando a fare girare il programma a diversi valori di $\beta$ e della
-dimensione della griglia, notiamo che i tempi di attesa diventano molto lunghi
-per la temperatura inversa che si avvicina a $0.4$. In particolare notiamo che
-la crescita del numero di step necessari alla coalescenza \`e circa esponenziale
-in $\beta$. Per ovviare a questo problema, che a livello pratico impedisce alla
-computazione di terminare per molti valori dei parametri, nella prossima sezione
-si presenter\`a un miglioramento del metodo.
+dimensione della griglia, notiamo, come mostrato in \ref{fig:plot1} che i tempi
+di attesa diventano molto lunghi per la temperatura inversa che si avvicina a
+$0.4$. In particolare notiamo che la crescita del numero di step necessari alla
+coalescenza \`e circa esponenziale in $\beta$. Per ovviare a questo problema,
+che a livello pratico impedisce alla computazione di terminare per molti valori
+dei parametri, nella prossima sezione si presenter\`a un miglioramento del
+metodo.
+\begin{figure}[h!]
+\caption{Numero di step richiesti per la coalescenza per una griglia di lato 10.}
+\includegraphics[width=\textwidth]{pp_times_10}
+\label{fig:plot1}
+\centering
+\end{figure}
 
 \section{Random Cluster}
 
@@ -515,6 +522,226 @@ a valori in $\Omega$ e distribuzione $\nu$,
     \end{cases}
 \]
 
+Notiamo che per $0<p<1$ vale che $\frac{p}{2-p}<p$, che, scelto uniformemente un
+arco $e$, consente di costruire la funzione per lo step:
+\[
+    \Psi(\omega,u)(e) =
+    \begin{cases}
+        \omega \cup \setof{e} \text{\qquad se $u<\frac{p}{2-p}$}\\
+        \omega \cup \setof{e} \text{\qquad se $u<p$ e $C(\omega_p) =
+            C(\omega_n)$}\\
+        \omega \setminus \setof{e} \text{\qquad altrimenti.} 
 
+    \end{cases}
+\]
+Su tutti gli altri archi $\Psi(\omega)$ concorda con $\omega$.
+
+Ordiniamo $\Omega$ per inclusione (questo ordine corrisponde a quello definito
+su $\Sigma$ se visto $\Omega$ come insieme di funzioni) e verifichiamo la
+monotonia di $\Psi$ nel suo primo argomento.
+
+Vale intanto che se $\omega\subseteq\omega'$ e $C(\omega_p)=C(\omega_n)$ allora
+$C(\omega'_p) = C(\omega'_n)$. Si distinguono allora i casi:
+\begin{itemize}
+    \item Se $u<\frac{p}{2-p}$ allora $\omega$ e $\omega'$ si aggiornano nello
+        stesso modo.
+    \item Se $u\geq p$ vale lo stesso ragionamento.
+    \item Se $\frac{p}{2-p} \leq u < p$ e $\Psi(\omega') = \omega'_n$ allora
+        $C(\omega'_p)\neq C(\omega'_n)$ e dunque $C(\omega_p)\neq C(\omega_n)$,
+        concludendo che $\Psi(\omega) = \omega_n$. Cio\`e gli archi si
+        aggiornano nello stesso modo.
+    \item Se $\frac{p}{2-p} \leq u < p$ e $\Psi(\omega) = \omega_p$ allora si
+        ragiona come nel caso precedente e si ottiene che gli archi si
+        aggiornano nello stesso modo.
+    \item In tutti i rimanenti casi vale che $\Psi(\omega')=\omega'_p$ e
+        $\Psi(\omega)=\omega_n$.
+\end{itemize}
+In tutte le situazioni l'ordine viene mantenuto.
+
+Per chiarezza si presenta lo pseudocodice per lo step della catena di Markov:
+\begin{lstlisting}
+def step(omega):
+    e = random_edge() # Selezione casuale di un arco
+    u = random() # Selezione casuale di un reale in [0,1]
+    remove(omega, e) # Viene rimosso (se presente) l'arco
+    if u < p/(2-p):
+        insert(omega, e) # Si inserisce l'arco
+
+    # are\_in\_the\_same\_component ritorna vero se e solo se 
+    # gli estremi di e si trovano nella stessa componente
+    # connessa di omega
+    elif u < p and are_in_the_same_component(omega, e):
+        insert(omega, e)
+\end{lstlisting}
+
+Nel codice che segue, \texttt{are\_in\_the\_same\_component} \`e implementato
+attreverso una visita BFS della componente connessa di uno dei suoi vertici. Il
+suo tempo \`e quindi dominato dalla dimensione dei cluster e quindi del numero
+totale di vertici. 
+
+Inoltre le configurazioni su $\Omega$ sono rappresentate come matrici $N\times N
+\times 2$, con $N$ lato della griglia quadrata. L'elemento in posizione
+$(i,j,d)$ rappresenta l'arco che parte dal vertice in $(i,j)$ e va alla sua
+destra se $d=0$, immdiatamente verso il basso se $d=1$.
+
+\begin{lstlisting}
+import numpy as np
+import numpy.random as rnd
+from collections import deque
+
+
+class Random_gen:
+    def __init__(self, N):
+        self.nmax = N * N * 2
+        self.depth = 0
+        self.rarr = np.zeros((0,), dtype=float)
+        self.narr = np.zeros((0), dtype=int)
+
+    def advance_depth(self, nd):
+        self.rarr.resize((nd,), refcheck=False)
+        self.narr.resize((nd,), refcheck=False)
+        self.rarr[self.depth:] = rnd.random((nd-self.depth,))
+        self.narr[self.depth:] = rnd.randint(0, self.nmax, size=(nd-self.depth,))
+        self.depth = nd
+
+def are_in_same_cc(V, x1, x2):
+    que = deque()
+    x = x1
+    N = V.shape[0]
+    adj = [(1,0,0),(0,1,1),(-1,0,0),(0,-1,1)]
+    visited = np.zeros((N,N), dtype=bool)
+    visited[x] = True
+    while len(que) > 0:
+        x = que.popleft()
+        if x == x2:
+            return True
+        visited[x] = True
+        (i,j) = x
+        if i+1 < N and V[i,j,0] == 1 and visited[i+1, j] == 0:
+            que.append((i+1, j))
+        if j+1 < N and V[i,j,1] == 1 and visited[i, j+1] == 0:
+            que.append((i, j+1))
+        if i > 0 and V[(i-1,j,0] == 1 and visited[i-1, j] == 0:
+            que.append((i-1, j))
+        if j > 0 and V[i,j-1,1] == 1 and visited[i, j-1] == 0:
+            que.append((i, j-1))
+    return False
+
+def multiple_step(p, V, narr, rarr):
+    depth = rarr.size
+    N = V.shape[0]
+    for i in range(depth):
+        index = depth - i - 1
+        u = rarr[index]
+        x = narr[index]
+        i = x % N
+        x = x // N
+        j = x % N
+        x = x // N
+        d = x % 2
+        e = (i,j,d)
+        th1 = p / (2-p)
+        if d == 0:
+            y1 = 1
+            y2 = 0
+        else:
+            y1 = 0
+            y2 = 1
+        x2 = ((i+y1)%N, (j+y2)%N)
+        x1 = (i,j)
+        V[i,j,d] = 0
+        if u < th1:
+            V[i,j,d] = 1
+        elif u < p and are_in_same_cc(V, x1, x2):
+            V[i,j,d] = 1
+
+def get_clustered(N, p):
+    depth = 1
+    ran = Random_gen(N)
+    ran.advance_depth(depth)
+    while True:
+        up = np.ones((N,N,2), dtype=bool)
+        down = np.zeros((N,N,2), dtype=bool)
+        multiple_step(p, up, ran.narr, ran.rarr)
+        multiple_step(p, down, ran.narr, ran.rarr)
+        if np.array_equal(up, down):
+            break
+        else:
+            depth = max(depth+1, depth*2)
+            ran.advance_depth(depth)
+    return up
+
+def get_ising(N, beta):
+    p = (1 - np.exp(-beta*2))
+    V = get_clustered(N, p)
+    M = np.zeros((N,N), dtype=int)
+    for i in range(N):
+        for j in range(N):
+            if M[i,j] != 0:
+                continue
+            sigma = rnd.randint(0,2) * 2 - 1
+            que = deque()
+            que.append((i,j))
+            while len(que) > 0:
+                i,j = que.popleft()
+                M[i,j] = sigma
+                if i+1 < N and V[i,j,0] == 1 and M[i+1, j] == 0:
+                    que.append((i+1, j))
+                if j+1 < N and V[i,j,1] == 1 and M[i, j+1] == 0:
+                    que.append((i, j+1))
+                if i > 0 and V[(i-1,j,0] == 1 and M[i-1, j] == 0:
+                    que.append((i-1, j))
+                if j > 0 and V[i,j-1,1] == 1 and M[i, j-1] == 0:
+                    que.append((i, j-1))
+    return M
+\end{lstlisting}
+
+Notiamo che con i random cluster, i tempi necessari alla coalescenza rimangono
+stabili al veriare del parametro $\beta$, come mostrato in \ref{fig:plot2}.
+\begin{figure}[h!]
+\caption{Numero di step richiesti per la coalescenza per una griglia di lato 10
+    con i random cluster.}
+\includegraphics[width=\textwidth]{ff_times_10}
+\label{fig:plot2}
+\centering
+\end{figure}
+
+\section{Transizione di fase}
+In \ref{fig:plot3} si mostrano diverse configurazioni tipo a diverse
+temperature. Il punto colorato indica lo spin $+1$. Si nota che man mano che la
+temperatura diminuisce, cio\`e man mano che $\beta$ aumenta, si tendono a
+formare regioni pi\`u grandi di vertici orientati nello stesso modo, e
+equivalentemente i cluster diventano pi\`u grandi. 
+\begin{figure}[h!]
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.8\linewidth]{conf_40_0.0}
+  \caption{$\beta$=0}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.8\linewidth]{conf_40_0.5}
+  \caption{$\beta$=0.5}
+\end{subfigure}%
+\caption{Configurazioni con $N=40$}
+\label{fig:plot3}
+\centering
+\end{figure}
+
+Per mostrare bene questo comportamento definiamo la magnetizzazione di una
+configurazione $\sigma$ come il valore assoluto della somma di tutti gli spin
+normalizzata sul numero di vertici. Andando a vedere come la magnetizzazione
+cambia al varirare di $\beta$ in \ref{fig:plot4}, si nota che si ha una brusca
+salit\`a tra i valori 0.4 e 0.5. Tale cambio di comportamento \`e detta
+transizione di fase. 
+
+\begin{figure}[h!]
+\caption{Magnetizzazione in funzione di $\beta$ per $N=25$. Per ogni valore di
+    $\beta$ sono stati fatti 40 campionamenti, rappresentati dai punti chiari. I
+    punti scuri sono le medie.}
+\includegraphics[width=\textwidth]{fortu_25}
+\label{fig:plot2}
+\centering
+\end{figure}
 
 \end{document}

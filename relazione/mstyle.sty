@@ -7,6 +7,7 @@
 \usepackage{listings}
 \usepackage{graphicx}
 \usepackage{dsfont}
+\usepackage{subcaption}
 \graphicspath{ {./images/} }
 
 \newcounter{basicblock}[section]
@@ -44,11 +45,12 @@
     columns=fixed,
     numbers=left,
     numberstyle=\tiny,
-    %keywordstyle=\color{blue},
+    keywordstyle=\bfseries,
     %commentstyle=\color{dkgreen},
     %stringstyle=\color{mauve},
     breaklines=true,
     breakatwhitespace=true,
     tabsize=4,
     texcl=true 
+    escapeinside={//}{\^^M}
 }

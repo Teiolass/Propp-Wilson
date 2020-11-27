@@ -4,10 +4,9 @@ from collections import deque
 import matplotlib.pyplot as plt
 
 
-#
-#  0 ---> horizontal (right)
-#  1 ---> vertical (down)
-#
+N = 40
+beta = 0.7
+
 
 class Random_gen:
     def __init__(self, N):
@@ -36,29 +35,15 @@ def are_in_same_cc(V, x1, x2):
             return True
         visited[x] = True
         (i,j) = x
-        if V[i,j,0] == 1 and M[(i+1)%N, j] == 0:
-            que.append(((i+1)%N, j))
-        if V[i,j,1] == 1 and M[i, (j+1)%N] == 0:
-            que.append((i, (j+1)%N))
-        if V[(i-1)%N,j,0] == 1 and M[(i-1)%N, j] == 0:
-            que.append(((i-1)%N, j))
-        if V[i,(j-1)%N,1] == 1 and M[i, (j-1)%N] == 0:
-            que.append((i, (j-1)%N))
+        if i+1 < N and V[i,j,0] == 1 and visited[i+1, j] == 0:
+            que.append((i+1, j))
+        if j+1 < N and V[i,j,1] == 1 and visited[i, j+1] == 0:
+            que.append((i, j+1))
+        if i > 0 and V[i-1,j,0] == 1 and visited[i-1, j] == 0:
+            que.append((i-1, j))
+        if j > 0 and V[i,j-1,1] == 1 and visited[i, j-1] == 0:
+            que.append((i, j-1))
     return False
-
-def step(p, V, e, u):
-    adj = [(1,0,0),(0,1,1),(-1,0,0),(0,-1,1)]
-    N = V.shape[0]
-    th1 = p / (2-p)
-    i, j, d = e
-    y1, y2, _ = adj[d]
-    x2 = ((i+y1)%N, (j+y2)%N)
-    x1 = (i,j)
-    V[i,j,d] = 0
-    if u < th1:
-        V[i,j,d] = 1
-    elif u < p and are_in_same_cc(V, x1, x2):
-        V[i,j,d] = 1
 
 def multiple_step(p, V, narr, rarr):
     depth = rarr.size
@@ -73,7 +58,20 @@ def multiple_step(p, V, narr, rarr):
         x = x // N
         d = x % 2
         e = (i,j,d)
-        step(p, V, e, u)
+        th1 = p / (2-p)
+        if d == 0:
+            y1 = 1
+            y2 = 0
+        else:
+            y1 = 0
+            y2 = 1
+        x2 = ((i+y1)%N, (j+y2)%N)
+        x1 = (i,j)
+        V[i,j,d] = 0
+        if u < th1:
+            V[i,j,d] = 1
+        elif u < p and are_in_same_cc(V, x1, x2):
+            V[i,j,d] = 1
 
 def get_clustered(N, p):
     depth = 1
@@ -89,12 +87,11 @@ def get_clustered(N, p):
         else:
             depth = max(depth+1, depth*2)
             ran.advance_depth(depth)
-    return depth
+    return up
 
 def get_ising(N, beta):
     p = (1 - np.exp(-beta*2))
     V = get_clustered(N, p)
-    return V
     M = np.zeros((N,N), dtype=int)
     for i in range(N):
         for j in range(N):
@@ -106,39 +103,27 @@ def get_ising(N, beta):
             while len(que) > 0:
                 i,j = que.popleft()
                 M[i,j] = sigma
-                if V[i,j,0] == 1 and M[(i+1)%N, j] == 0:
-                    que.append(((i+1)%N, j))
-                if V[i,j,1] == 1 and M[i, (j+1)%N] == 0:
-                    que.append((i, (j+1)%N))
-                if V[(i-1)%N,j,0] == 1 and M[(i-1)%N, j] == 0:
-                    que.append(((i-1)%N, j))
-                if V[i,(j-1)%N,1] == 1 and M[i, (j-1)%N] == 0:
-                    que.append((i, (j-1)%N))
+                if i+1 < N and V[i,j,0] == 1 and M[i+1, j] == 0:
+                    que.append((i+1, j))
+                if j+1 < N and V[i,j,1] == 1 and M[i, j+1] == 0:
+                    que.append((i, j+1))
+                if i > 0 and V[i-1,j,0] == 1 and M[i-1, j] == 0:
+                    que.append((i-1, j))
+                if j > 0 and V[i,j-1,1] == 1 and M[i, j-1] == 0:
+                    que.append((i, j-1))
     return M
-
-
-            
-
-N = 10
-beta = 0.1
-beta_step = 0.03
-times = 30
 
 color_fore = '#A64444'
 color_back = '#F2A663'
 
-plt.xlim([0, 0.8])
-plt.yscale('log')
-plt.grid(True)
+# plt.axis([0, 0.8, 0, 1])
+plt.grid(False)
 
-while beta <= 0.8:
-    sm = 0
-    beta += beta_step
-    for _ in range(times):
-        mag = get_ising(N, beta)
-        sm += mag
-    sm /= times
-    plt.scatter(beta, sm, c=color_fore, marker='o')
-    plt.pause(0.001)
-    
+M = get_ising(N, beta)
+for i in range(N):
+    for j in range(N):
+        if M[i,j] == 1:
+            plt.scatter(i, j, c=color_fore, marker='o')
+        # else:
+        #     plt.scatter(i, j, c=color_back, marker='o')
 plt.show()
