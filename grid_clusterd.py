@@ -2,13 +2,12 @@ import numpy as np
 import numpy.random as rnd
 from collections import deque
 import matplotlib.pyplot as plt
-from hdtgraph.DynamicGraph import Graph
 
 
-N = 50
+N = 25
 beta = 0
-beta_step = 0.05
-times = 5
+beta_step = 0.02
+times = 40
 
 
 class Random_gen:
@@ -51,17 +50,6 @@ def are_in_same_cc(V, x1, x2):
 def multiple_step(p, V, narr, rarr):
     depth = rarr.size
     N = V.shape[0]
-    g = Graph()
-    for i in range(N):
-        for j in range(N):
-            if i+1 < N and V[i,j,0] == 1:
-                g.insert_edge((i+1, j),(i,j))
-            if j+1 < N and V[i,j,1] == 1:
-                g.insert_edge((i, j+1),(i,j))
-            if i > 0 and V[i-1,j,0] == 1:
-                g.insert_edge((i-1, j),(i,j))
-            if j > 0 and V[i,j-1,1] == 1:
-                g.insert_edge((i, j-1),(i,j))
     for i in range(depth):
         index = depth - i - 1
         u = rarr[index]
@@ -82,13 +70,10 @@ def multiple_step(p, V, narr, rarr):
         x2 = ((i+y1)%N, (j+y2)%N)
         x1 = (i,j)
         V[i,j,d] = 0
-        g.delete_edge(x1,x2)
         if u < th1:
             V[i,j,d] = 1
-            g.insert_edge(x1,x2)
-        elif u < p and g.connected(x1, x2):
+        elif u < p and are_in_same_cc(V, x1, x2):
             V[i,j,d] = 1
-            g.insert_edge(x1,x2)
 
 def get_clustered(N, p):
     depth = 1
@@ -131,7 +116,7 @@ def get_ising(N, beta):
     return M
 
 color_fore = '#A64444'
-color_back = '#F2A663'
+color_back = '#F2A66340'
 
 plt.axis([0, 0.8, 0, 1])
 plt.grid(True)

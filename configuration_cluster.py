@@ -26,7 +26,6 @@ def are_in_same_cc(V, x1, x2):
     que = deque()
     x = x1
     N = V.shape[0]
-    adj = [(1,0,0),(0,1,1),(-1,0,0),(0,-1,1)]
     visited = np.zeros((N,N), dtype=bool)
     visited[x] = True
     while len(que) > 0:
@@ -116,7 +115,6 @@ def get_ising(N, beta):
 color_fore = '#A64444'
 color_back = '#F2A663'
 
-# plt.axis([0, 0.8, 0, 1])
 plt.grid(False)
 
 M = get_ising(N, beta)
