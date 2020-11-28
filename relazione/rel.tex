@@ -11,8 +11,7 @@
 \begin{document}
 \maketitle
 
-\textbf{Le parti in grassetto sono commenti generici o placeholder perch\`e
-QUESTA \`E UNA BOZZA!}
+\textbf{QUESTA \`E UNA BOZZA!}
 
 \section*{Abstract}
 In questa relazione prenderemo in considerazione il problema di estrarre
@@ -44,28 +43,31 @@ volta raggiunta questa. Applicheremo tale algoritmo al modello di Ising, una
 modellizzazione del comportamento magnetico della materia.
 
 \section{Il modello di Ising}
-Sia $G=(V,E)$ un grafo non orientato. Considereremo dunque l'arco $(x,y$ uguale
+In queste prime sezioni si segue l'approccio di \cite{bremaud}.
+
+Sia $G=(V,E)$ un grafo non orientato. Considereremo dunque l'arco $(x,y)$ uguale
 all'arco $(y,x)$. I vertici andranno a rappresentare i singoli atomi di un
 materiale, e gli archi indicano quali atomi interagiscono fra loro. Ad ogni
 atomo viene quindi associato uno spin che pu\`o essere $+1$ o $-1$. Una
-configurazione \`e quindi una funzione $f\colon V \rightarrow \{+1, -1\}$. A
-ciascuno di questi modelli si associa l'energia 
+configurazione \`e quindi una funzione $\sigma\colon V \rightarrow \{+1, -1\}$.
+Chiameremo $\Sigma$ lo spazio di tali configurazioni.  A ciascuno di questi
+modelli si associa l'energia 
 \[
-    H(f) = -\sum_{(x,y)\in E} f(x)f(y).
+    H(\sigma) = -\sum_{(x,y)\in E} \sigma(x)\sigma(y).
 \]
 Inoltre viene dato un parametro reale del sistema $\beta \geq 0$ detta
-temperatura inversa. Il modello di ising associa ad ogni configurazione $f \in
-\{+1, -1\}^V$ la probabilit\`a
+temperatura inversa. Il modello di ising associa ad ogni configurazione $\sigma
+\in \Sigma$ la probabilit\`a
 \[
-    \pi(f) = \frac{1}{Z} \exp(-\beta H(f))
+    \pi(\sigma) = \frac{1}{Z} \exp(-\beta H(\sigma))
 \]
 Dove $Z$ \`e il coefficiente di normalizzazione pari a
 \[
-    Z = \sum_{f \in \{+1,-1\}^V} \exp(-\beta H(f))
+    Z = \sum_{\sigma \in \Sigma} \exp(-\beta H(\sigma))
 \]
 
 L'obiettivo che ci prefiggiamo \`e quello di estrarre un campione da
-$\{+1,-1\}^V$ con probabilit\`a $\pi$.
+$\Sigma$ con probabilit\`a $\pi$.
 
 \section{Metodo di Monte Carlo}
 
@@ -79,7 +81,7 @@ $\pi_n = \pi_0 P^n$ converge a $\pi$.
 
 Cerchiamo allora le matrici del tipo $P_{i,j} = A_{i,j} Q_{i,j}$ per $i\neq j$,
 dove la matrice $Q$ \`e irriducibile e viene detta matrice generatrice dei
-candidati, e $A$ \`e da terminare in modo tale che $P$ abbia le propriet\`a
+candidati, e $A$ \`e da determinare in modo tale che $P$ abbia le propriet\`a
 richieste e $0\leq A \leq 1$. Le componenti $P_{i,i}$ sono determinate in
 maniera tale che $P$ sia stocastica.  A livello di interpretazione si pu\`o
 pensare che a ogni step si sceglie vertice candidato a cui passare con
@@ -112,11 +114,11 @@ stocastico a valori in $E=\Lambda^V$ per certi insiemi $\Lambda$ e $V$.
 Con il Gibbs sampler il processo passa da uno stato $X_n=f$ a $X_{n+1}=g$ con le
 seguenti regole: sia $v$ un elemento scelto in modo casuale uniforme da $V$.
 Allora $f$ e $g$ devono coincidere su $V\setminus\setof{v}$. Il punto $g(v)$
-assume il valore $\lambda$ con probabilit\`a $\prob{X(v)=\lambda \ |\ 
-X(V\setminus\setof{v})=f(V\setminus\setof{v})}$. Si verifica che la
-distribuzione cercata soddisfa la condizione di reversibilit\`a e che la catena
-risultante \`e irriducibile e aperiodica. Dunque si ha la converganza del metodo
-di Monte Carlo.
+assume il valore $\lambda$ con probabilit\`a $\prob{X(v)=g(v) \ |\ X(v')=f(v')
+\text{ per } v' \in V\setminus\setof{v}}$. Si verifica che la distribuzione
+cercata soddisfa la condizione di reversibilit\`a e che la catena risultante \`e
+irriducibile e aperiodica. Dunque si ha la converganza del metodo di Monte
+Carlo.
 
 In particolare il Gibbs sampler \`e un caso particolare del MCMC con
 Metropoli-Hastings. In effetti scegliamo la matrice dei candidati $Q$ con le
@@ -127,7 +129,7 @@ $A$ sono pari a $1$, e dunque $P=Q$.
 
 In questa sezione svilupperemo un metodo per estrarre un campione con una
 probabilit\`a esatta $\pi$, data $P$ una matrice di transizione irriducibile e
-aperiodica Su un insieme finito di stati $S=\setof{s_1,\dots,s_n}$ e con
+aperiodica su un insieme finito di stati $S=\setof{s_1,\dots,s_n}$ e con
 probabilit\`a invariante $\pi$. Possiamo associare alla catena di Markov
 definita da $P$ una funzione di transizione 
 \[
@@ -138,7 +140,7 @@ tale che se $U$ \`e una variabile uniforme sull'intervallo $[0,1]$, allora
     \prob{f(s_i,U)=s_j}=P_{i,j} \qquad \forall s_i,s_j \in S.
 \]
 
-Siano $U_n$ variabili uniformi su $[0,1]$ per ogni $n\in \Z$. Costruiamo allora
+Siano $U_m$ variabili uniformi su $[0,1]$ per ogni $m\in \Z$. Costruiamo allora
 delle sequenze $X^r_m(i)$ con $i = 1,\dots,n$, $r\leq 0$ e $m \geq r$ interi nel
 modo seguente:
 \[
@@ -150,7 +152,7 @@ modo seguente:
 
 Sia ora 
 \[
-    \tau^-=\max(\ r \st X^r_0(1) = \dots = X^r_0(n))
+    \tau^-=\min(\ -r \st X^r_0(1) = \dots = X^r_0(n))
 \]
 e definiamo $Y = X^{\tau^-}_0(1)$. La condizione con cui \`e stato definito
 $\tau^-$ \`e detta coalescenza e $\tau^-$ \`e detto tempo di accoppiamento
@@ -158,7 +160,20 @@ all'indietro.
 
 Si verifica che $Y$ ha distribuzione pari a $\pi$.
 
-Questo metodo \`e noto come algoritmo di Propp-Wilson.
+Questo metodo \`e noto come algoritmo di Propp-Wilson \cite{propp-wilson}.
+
+In figura \ref{fig:im1} c'\`e un esempio di una simulazione con Propp-Wilson. Il
+tempo di coalescenza all'indietro \`e 6, e la variabile $Y$ avr\`a il valore
+dello stato centrale. Si noti che una volta che due catene assumono lo stesso
+valore, esse rimangono unite da quel punto in poi.
+
+\begin{figure}[h!]
+\input{images/pw_coal.pdf_tex}
+\caption{Esempio di catene generate con Propp Wilson.}
+\label{fig:im1}
+\centering
+\end{figure}
+
 
 \textit{Esempio.} Proviamo a descrivere una semplificazione dell'algoritmo di
 Propp-Wilson e descriviamo un esempio per cui essa non funziona. Come sopra
@@ -217,11 +232,21 @@ rispetti la condizione di monotonia
 \[
     f(s_i, u) \leq f(s_j, u) \qquad \forall s_i \preceq s_j,\ u \in [0,1]
 \]
+
 e che esistano in $S$ un massimo e un minimo, che senza perdita di generalit\`a
 chiameremo $s_1$ e $s_n$. Si verifica facilmente che la coalescenza di $X^r_0$
-si verifica se e solo se $X^r_0(1) = X^r_0(n)$. Inoltre il tempo di coalescenza
-$\tau^-$ \`e quasi certamente finito e la variabile $Y=X^{\tau^-}_0(1)$ ha
-distribuzione $\pi$.
+si verifica se e solo se $X^r_0(1) = X^r_0(n)$. In figura \ref{fig:im2} si ha un
+esempio di queste catene. In questo caso il tempo di coalescenza \`e 7.
+
+\begin{figure}[h!]
+\input{images/mon_coal.pdf_tex}
+\caption{Esempio di catene monotone generate con Propp Wilson.}
+\label{fig:im2}
+\centering
+\end{figure}
+
+Questa idea \`e efficace perch\'e il tempo di coalescenza $\tau^-$ \`e quasi
+certamente finito e la variabile $Y=X^{\tau^-}_0(1)$ ha distribuzione $\pi$.
 
 \textit{Dimostrazione.} Notiamo come prima cosa che il tempo $\tau^+$ (definito
 come nell'esempio sopra) \`e dominato dal primo $m$ positivo per cui $X_m(n) =
@@ -262,14 +287,14 @@ invariante e questo conclude la dimostrazione.
 
 
 \section{Implementazione del modello di Ising}
-
-Andiamo ad utilizzare le tecnice viste al modello di Ising. Innanzi tutto ci
-ridurremo al caso in cui il grafo \`e una griglia quadrata di lato $l$. Sui
-possibili stati di un grafo, consideriamo la relazione d'ordine definita da:
-$f \preceq g$ se e solo se per ogni vertice $v$ si ha che $f(v) \leq g(v)$.
-Con questa realzione si hanno due stati particolari, le due funzioni costanti,
-che sono il massimo e il minimo. Lo scopo \`e quello di simulare le catene di
-Markov che partono da questi stati. 
+Andiamo ad utilizzare le tecnice viste al modello di Ising, sviluppando gli
+esercizi 11.3 e 11.4 di \cite{haggstrom}. Innanzi tutto ci ridurremo al caso in
+cui il grafo \`e una griglia quadrata di lato $l$. Sui possibili stati di un
+grafo, consideriamo la relazione d'ordine definita da: $\sigma \preceq \xi$ se e
+solo se per ogni vertice $v$ si ha che $\sigma(v) \leq \xi(v)$.  Con questa
+realzione si hanno due stati particolari, le due funzioni costanti, che sono il
+massimo e il minimo. Lo scopo \`e quello di simulare le catene di Markov che
+partono da questi stati. 
 
 Sia $\xi$ una possibile configurazione sul grafo $(V,E)$. Sia inoltre $v$ un
 vertice e consideriamo le configurazioni $\xi_p$ e $\xi_n$ che sono uguali a
@@ -339,6 +364,7 @@ Ising sul grafo fatto come una griglia quadrata di lato \texttt{N}.
 import numpy as np
 import numpy.random as rnd
 
+# Questa classe si occupa di produrre e ricordare i valori casuali
 class Random_gen:
     def __init__(self, N):
         self.N = N
@@ -377,13 +403,6 @@ def multiple_step(M, beta, rarr, narr):
         else:
             M[x, y] = -1
 
-def check_coalescence(M1, M2):
-    for i in range(N):
-        for j in range(N):
-            if M1[i,j] != M2[i,j]:
-                return False
-    return True
-
 def get_ising(N, beta):
     depth = 1
     ran = Random_gen(N)
@@ -393,7 +412,8 @@ def get_ising(N, beta):
         down = np.full((N,N), -1, dtype=int)
         multiple_step(up, beta, ran.rarr, ran.narr)
         multiple_step(down, beta, ran.rarr, ran.narr)
-        if check_coalescence(up, down):
+        # Verifica se si ha la coalescenza
+        if np.array_equal(up, down): 
             break
         else:
             depth = max(depth+1, depth*2)
@@ -402,13 +422,14 @@ def get_ising(N, beta):
 \end{lstlisting}
 
 Provando a fare girare il programma a diversi valori di $\beta$ e della
-dimensione della griglia, notiamo, come mostrato in \ref{fig:plot1} che i tempi
-di attesa diventano molto lunghi per la temperatura inversa che si avvicina a
-$0.4$. In particolare notiamo che la crescita del numero di step necessari alla
-coalescenza \`e circa esponenziale in $\beta$. Per ovviare a questo problema,
-che a livello pratico impedisce alla computazione di terminare per molti valori
-dei parametri, nella prossima sezione si presenter\`a un miglioramento del
-metodo.
+dimensione della griglia, notiamo, come mostrato in figura \ref{fig:plot1} che i
+tempi di attesa diventano molto lunghi per la temperatura inversa che si
+avvicina a $0.4$. In particolare notiamo che la crescita del numero di step
+necessari alla coalescenza \`e circa esponenziale in $\beta$. Per ovviare a
+questo problema, che a livello pratico impedisce alla computazione di terminare
+per molti valori dei parametri, nella prossima sezione si presenter\`a un
+miglioramento del metodo.
+
 \begin{figure}[h!]
 \caption{Numero di step richiesti per la coalescenza per una griglia di lato 10.}
 \includegraphics[width=\textwidth]{pp_times_10}
@@ -417,11 +438,8 @@ metodo.
 \end{figure}
 
 \section{Random Cluster}
-
-\textbf{I risultati originali qui presentati sono stati trovati da Fortuin e
-Kasteleyn e sono stati usati da Propp e Wilson nel loro articolo. Purtoppo non
-sono riuscito a trovare l'originale. In Edwards-Sokal (1988) c'\`e una bozza di
-dimostrazione che ho sviluppato e riportato qui.}
+I seguenti risultati sono stati ottenuti sviluppando la traccia in
+\cite{edwards-sokal}.
 
 Consideriamo un grafo non orientato $G=(V,E)$, sia poi $\Sigma$ lo spazio delle
 possibili configurazioni di un modello di Ising su $G$, ossia $\setof{0,1}^V$.
@@ -697,22 +715,24 @@ def get_ising(N, beta):
 \end{lstlisting}
 
 Notiamo che con i random cluster, i tempi necessari alla coalescenza rimangono
-stabili al veriare del parametro $\beta$, come mostrato in \ref{fig:plot2}.
-\begin{figure}[h!]
+stabili al veriare del parametro $\beta$, come mostrato in figura
+\ref{fig:plot2}.
+
+\begin{figure}[]
+\includegraphics[width=\textwidth]{ff_times_10}
 \caption{Numero di step richiesti per la coalescenza per una griglia di lato 10
     con i random cluster.}
-\includegraphics[width=\textwidth]{ff_times_10}
 \label{fig:plot2}
 \centering
 \end{figure}
 
-\section{Transizione di fase}
-In \ref{fig:plot3} si mostrano diverse configurazioni tipo a diverse
-temperature. Il punto colorato indica lo spin $+1$. Si nota che man mano che la
-temperatura diminuisce, cio\`e man mano che $\beta$ aumenta, si tendono a
-formare regioni pi\`u grandi di vertici orientati nello stesso modo, e
-equivalentemente i cluster diventano pi\`u grandi. 
-\begin{figure}[h!]
+\section{Transizione di fase} In figura \ref{fig:plot3} si mostrano diverse
+configurazioni tipo a diverse temperature. Il punto colorato indica lo spin
+$+1$. Si nota che man mano che la temperatura diminuisce, cio\`e man mano che
+$\beta$ aumenta, si tendono a formare regioni pi\`u grandi di vertici orientati
+nello stesso modo, e equivalentemente i cluster diventano pi\`u grandi. 
+
+\begin{figure}[]
 \begin{subfigure}{.5\textwidth}
   \centering
   \includegraphics[width=.8\linewidth]{conf_40_0.0}
@@ -731,17 +751,38 @@ equivalentemente i cluster diventano pi\`u grandi.
 Per mostrare bene questo comportamento definiamo la magnetizzazione di una
 configurazione $\sigma$ come il valore assoluto della somma di tutti gli spin
 normalizzata sul numero di vertici. Andando a vedere come la magnetizzazione
-cambia al varirare di $\beta$ in \ref{fig:plot4}, si nota che si ha una brusca
-salit\`a tra i valori 0.4 e 0.5. Tale cambio di comportamento \`e detta
-transizione di fase. 
+cambia al variare di $\beta$ in figura figura \ref{fig:plot4}, si nota che si ha
+una brusca salit\`a tra i valori 0.4 e 0.5. Tale cambio di comportamento \`e
+detta transizione di fase. 
 
-\begin{figure}[h!]
+\begin{figure}[]
+\includegraphics[width=\textwidth]{fortu_25}
 \caption{Magnetizzazione in funzione di $\beta$ per $N=25$. Per ogni valore di
     $\beta$ sono stati fatti 40 campionamenti, rappresentati dai punti chiari. I
     punti scuri sono le medie.}
-\includegraphics[width=\textwidth]{fortu_25}
-\label{fig:plot2}
+\label{fig:plot4}
 \centering
 \end{figure}
+
+\begin{thebibliography}{9}
+\bibitem{bremaud} 
+Pierre Br\'emaud
+\textit{Markov Chains, Gibbs Fields, Monte Carlo Simulation and Queues}. 
+2020.
+\bibitem{propp-wilson} 
+James Gary Propp, David Bruce Wilson.
+\textit{Exact Sampling with Coupled Markov Chains and Applications to Statistical
+        Mechanics}. 
+1996.
+\bibitem{haggstrom} 
+Olle H\"aggstr\"om
+\textit{Finite Markov Chains and Algorithmic Applications}. 
+2002.
+\bibitem{edwards-sokal} 
+Robert G. Edwards, Alan D. Sokal
+\textit{Generalization of the Fortuin-Kasteleyn-Swendsen-Wang representation and
+        Monte Carlo algorithm}. 
+1988.
+\end{thebibliography}
 
 \end{document}
