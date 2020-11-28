@@ -3,7 +3,8 @@ Pisa.
 This is a work in progress, the main topic will be the implementation of the
 Propp-Wilson algorithm for the study of the Ising model.
 
-Keywords: Propp-Wilson, Markov chain, MCMC, Coupling from the past, Ising model
+Keywords: Propp-Wilson, Markov chain, MCMC, Coupling from the past, Ising model,
+Random Cluster, Fortune, Edwards, Phase Transition
 
 [HERE](relazione/la_relazione.pdf) you can find the report I wrote (in Italian).
 
