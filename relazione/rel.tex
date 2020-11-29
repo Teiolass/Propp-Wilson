@@ -113,8 +113,8 @@ stocastico a valori in $E=\Lambda^V$ per certi insiemi $\Lambda$ e $V$.
 
 Con il Gibbs sampler il processo passa da uno stato $X_n=f$ a $X_{n+1}=g$ con le
 seguenti regole: sia $v$ un elemento scelto in modo casuale uniforme da $V$.
-Allora $f$ e $g$ devono coincidere su $V\setminus\setof{v}$. Il punto $g(v)$
-assume il valore $\lambda$ con probabilit\`a $\prob{X(v)=g(v) \ |\ X(v')=f(v')
+Allora $f$ e $g$ devono coincidere su $V\setminus\setof{v}$. Il punto $X(v)$
+assume il valore $g(v)$ con probabilit\`a $\prob{X(v)=g(v) \ |\ X(v')=f(v')
 \text{ per } v' \in V\setminus\setof{v}}$. Si verifica che la distribuzione
 cercata soddisfa la condizione di reversibilit\`a e che la catena risultante \`e
 irriducibile e aperiodica. Dunque si ha la converganza del metodo di Monte
@@ -127,11 +127,11 @@ $A$ sono pari a $1$, e dunque $P=Q$.
 
 \section{Coupling from the past}
 
-In questa sezione svilupperemo un metodo per estrarre un campione con una
-probabilit\`a esatta $\pi$, data $P$ una matrice di transizione irriducibile e
-aperiodica su un insieme finito di stati $S=\setof{s_1,\dots,s_n}$ e con
-probabilit\`a invariante $\pi$. Possiamo associare alla catena di Markov
-definita da $P$ una funzione di transizione 
+In questa sezione, tratto da \cite{haggstrom} svilupperemo un metodo per
+estrarre un campione con una probabilit\`a esatta $\pi$, data $P$ una matrice di
+transizione irriducibile e aperiodica su un insieme finito di stati
+$S=\setof{s_1,\dots,s_n}$ e con probabilit\`a invariante $\pi$. Possiamo
+associare alla catena di Markov definita da $P$ una funzione di transizione 
 \[
     f\colon S\times [0,1] \longrightarrow S
 \]
