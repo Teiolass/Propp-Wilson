@@ -16,9 +16,15 @@
 \section*{Abstract}
 In questa relazione prenderemo in considerazione il problema di estrarre
 campioni di valori casuali data una certa distribuzione di probabilita` discreta.
-Supporremo di sapere generare variabili uniformi sull'intervallo $[0,1]$, che
-verranno implementate operativamente come le variabili generate dalla libreria
-\code{numpy}.
+Adotteremo le tecniche di coupling from the past e l'algoritmo di Propp-Wilson
+per ottenere la distribuzione esatta.
+
+Infine applicheremo tali metodi al modello di Ising.
+
+\section{Introduzione}
+Supponiamo di saper produrre variabili aleatorie uniformi sull'intervallo reale
+$[0,1]$. Nella pratica esse saranno quelle generate dalla libreria \code{numpy}
+di Python.
 
 Una prima soluzione del problema \`e quella di dividere $[0,1]$ in intervalli di
 lunghezza pari a ciascuna componente del vettore di probabilit\`a, e scegliere
