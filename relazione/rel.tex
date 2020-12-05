@@ -4,28 +4,30 @@
 \usepackage{amssymb}
 \usepackage{mstyle}
 
-\title{\textbf{\Huge Relazione di Laboratorio Computazionale}}
+\title{\textbf{\huge Simulazione del Modello di Ising con l'algoritmo di
+Propp-Wilson}}
 \date{}
 
 
 \begin{document}
 \maketitle
 
-\textbf{QUESTA \`E UNA BOZZA!}
-
 \section*{Abstract}
 In questa relazione prenderemo in considerazione il problema di estrarre
-campioni di valori casuali data una certa distribuzione di probabilita` discreta.
-Adotteremo le tecniche di coupling from the past e l'algoritmo di Propp-Wilson
-per ottenere la distribuzione esatta.
+campioni di valori casuali data una certa distribuzione di probabilit\`a
+discreta.  Adotteremo le tecniche di coupling from the past e l'algoritmo di
+Propp-Wilson per ottenere la distribuzione esatta.
 
-Infine applicheremo tali metodi al modello di Ising.
+Infine applicheremo tali metodi al modello di Ising a una griglia quadrata in
+dimensione 2.
 
 \section{Introduzione}
 Supponiamo di saper produrre variabili aleatorie uniformi sull'intervallo reale
 $[0,1]$. Nella pratica esse saranno quelle generate dalla libreria \code{numpy}
 di Python.
 
+L'obiettivo \`e quello di saper estrarre un campione da un insieme finito con
+una data distribuzione di probabilit\`a.
 Una prima soluzione del problema \`e quella di dividere $[0,1]$ in intervalli di
 lunghezza pari a ciascuna componente del vettore di probabilit\`a, e scegliere
 il risultato in funzione dell'intervallo a cui appartiene una variabile
@@ -36,24 +38,27 @@ spesso il vettore di probabilit\`a \`e noto solo a meno di un coefficiente di
 normalizzazione, il cui calcolo richiederebbe di nuovo $O(n)$ somme. 
 
 Uno dei metodi pi\`u utilizzati per ovviare a questi problemi \`e il metodo di
-Monte Carlo (abbreviato spesso con MCMC, Markov Chain Monte Carlo), che consiste
-nella simulazione di una camminata su una catena di Markov con distribuzione
-invariante la distribuzione data. Dopo un numero sufficiente di step, la
-frequenza di visita di un nodo sar\`a arbitrariamente vicina a quella voluta. In
-questo caso per\`o il numero di passi necessari ad una determinata distribuzione
-non \`e noto a priori ed \`e di difficile calcolo.
+Monte Carlo con catene di Markov (abbreviato spesso con MCMC, Markov Chain Monte
+Carlo), che consiste nella simulazione di una camminata su una catena di Markov
+con distribuzione invariante la distribuzione data. Dopo un numero sufficiente
+di step, la frequenza di visita di un nodo sar\`a arbitrariamente vicina a
+quella voluta. Per un resoconto sull'argomento, consultare \cite{bremaud}.
+In questo caso per\`o il numero di passi necessari ad una
+determinata distribuzione non \`e noto a priori ed \`e di difficile calcolo.
 
-Si andr\`a dunque a presentare l'algoritmo di Propp-Wilson, una modifica del
-MCMC che ha il vantaggio di ottenere la distribuzione esatta e di terminare una
-volta raggiunta questa. Applicheremo tale algoritmo al modello di Ising, una
-modellizzazione del comportamento magnetico della materia.
+Si andr\`a dunque a presentare l'algoritmo di Propp-Wilson \cite{propp-wilson}
+\cite{haggstrom}, una modifica del MCMC che ha il vantaggio di ottenere la
+distribuzione esatta e di terminare una volta raggiunta questa. Applicheremo
+tale algoritmo al modello di Ising, una modellizzazione del comportamento
+magnetico della materia.
 
 \section{Il modello di Ising}
-In queste prime sezioni si segue l'approccio di \cite{bremaud}.
 
-Sia $G=(V,E)$ un grafo non orientato. Considereremo dunque l'arco $(x,y)$ uguale
-all'arco $(y,x)$. I vertici andranno a rappresentare i singoli atomi di un
-materiale, e gli archi indicano quali atomi interagiscono fra loro. Ad ogni
+In queste prime sezioni si seguono le notazioni di \cite{bremaud}.
+
+Sia $G=(V,E)$ un grafo finito non orientato. Considereremo dunque l'arco $(x,y)$
+uguale all'arco $(y,x)$. I vertici andranno a rappresentare i singoli atomi di
+un materiale, e gli archi indicano quali atomi interagiscono fra loro. Ad ogni
 atomo viene quindi associato uno spin che pu\`o essere $+1$ o $-1$. Una
 configurazione \`e quindi una funzione $\sigma\colon V \rightarrow \{+1, -1\}$.
 Chiameremo $\Sigma$ lo spazio di tali configurazioni.  A ciascuno di questi
@@ -62,7 +67,7 @@ modelli si associa l'energia
     H(\sigma) = -\sum_{(x,y)\in E} \sigma(x)\sigma(y).
 \]
 Inoltre viene dato un parametro reale del sistema $\beta \geq 0$ detta
-temperatura inversa. Il modello di ising associa ad ogni configurazione $\sigma
+temperatura inversa. Il modello di Ising associa ad ogni configurazione $\sigma
 \in \Sigma$ la probabilit\`a
 \[
     \pi(\sigma) = \frac{1}{Z} \exp(-\beta H(\sigma))
@@ -88,7 +93,7 @@ $\pi_n = \pi_0 P^n$ converge a $\pi$.
 Cerchiamo allora le matrici del tipo $P_{i,j} = A_{i,j} Q_{i,j}$ per $i\neq j$,
 dove la matrice $Q$ \`e irriducibile e viene detta matrice generatrice dei
 candidati, e $A$ \`e da determinare in modo tale che $P$ abbia le propriet\`a
-richieste e $0\leq A \leq 1$. Le componenti $P_{i,i}$ sono determinate in
+richieste e $0\leq A \leq 1$. Le componenti $P_{i,j}$ sono determinate in
 maniera tale che $P$ sia stocastica.  A livello di interpretazione si pu\`o
 pensare che a ogni step si sceglie vertice candidato a cui passare con
 probabilit\`a dettata da $Q$ e poi si esegue il passagio con probabilit\`a
@@ -131,6 +136,11 @@ Metropoli-Hastings. In effetti scegliamo la matrice dei candidati $Q$ con le
 probabili\`a sopra definite. A queto punto si verifica che tutte le entrate di
 $A$ sono pari a $1$, e dunque $P=Q$.
 
+Inoltre se $\Lambda$ contiene esattamente due elementi, il Gibbs Sampler \`e
+equivalente al Barker Sampler, con i candidati $Q_{i,j}$ uguale a 1 se e solo se
+gli stati $i$ e $j$ differiscono su al pi\`u un punto. Per maggiori dettagli
+\cite{bremaud}.
+
 \section{Coupling from the past}
 
 In questa sezione, tratto da \cite{haggstrom} svilupperemo un metodo per
@@ -164,7 +174,7 @@ e definiamo $Y = X^{\tau^-}_0(1)$. La condizione con cui \`e stato definito
 $\tau^-$ \`e detta coalescenza e $\tau^-$ \`e detto tempo di accoppiamento
 all'indietro.
 
-Si verifica che $Y$ ha distribuzione pari a $\pi$.
+Si verifica che $Y$ ha distribuzione pari a $\pi$ \cite{bremaud}.
 
 Questo metodo \`e noto come algoritmo di Propp-Wilson \cite{propp-wilson}.
 
@@ -181,7 +191,7 @@ valore, esse rimangono unite da quel punto in poi.
 \end{figure}
 
 
-\textit{Esempio.} Proviamo a descrivere una semplificazione dell'algoritmo di
+\textit{Esempio.} Consideriamo una semplificazione dell'algoritmo di
 Propp-Wilson e descriviamo un esempio per cui essa non funziona. Come sopra
 prendiamo le $U_m$ variabili indipendenti uniformi sull'intervallo unitario con
 $m$ che varia sui numeri naturali. Consideriamo le $n$ catene $X(i)$ in modo
@@ -254,10 +264,10 @@ esempio di queste catene. In questo caso il tempo di coalescenza \`e 7.
 Questa idea \`e efficace perch\'e il tempo di coalescenza $\tau^-$ \`e quasi
 certamente finito e la variabile $Y=X^{\tau^-}_0(1)$ ha distribuzione $\pi$.
 
-\textit{Dimostrazione.} Notiamo come prima cosa che il tempo $\tau^+$ (definito
-come nell'esempio sopra) \`e dominato dal primo $m$ positivo per cui $X_m(n) =
-s_1$. Questo $m$ \`e finito perch\'e la catena di Markov in considerazione \`e
-ergodica. 
+\textit{Dimostrazione.}\cite{bremaud} Notiamo come prima cosa che il tempo
+$\tau^+$ (definito come nell'esempio sopra) \`e dominato dal primo $m$ positivo
+per cui $X_m(n) = s_1$. Questo $m$ \`e finito perch\'e la catena di Markov in
+considerazione \`e ergodica. 
 
 Ora mostriamo che per ogni $k$ naturale si ha che $\prob{\tau^- \leq k} =
 \prob{\tau^- \leq k}$. Consideriamo la successione di valori casuali per
@@ -295,12 +305,16 @@ invariante e questo conclude la dimostrazione.
 \section{Implementazione del modello di Ising}
 Andiamo ad utilizzare le tecnice viste al modello di Ising, sviluppando gli
 esercizi 11.3 e 11.4 di \cite{haggstrom}. Innanzi tutto ci ridurremo al caso in
-cui il grafo \`e una griglia quadrata di lato $l$. Sui possibili stati di un
-grafo, consideriamo la relazione d'ordine definita da: $\sigma \preceq \xi$ se e
-solo se per ogni vertice $v$ si ha che $\sigma(v) \leq \xi(v)$.  Con questa
-realzione si hanno due stati particolari, le due funzioni costanti, che sono il
-massimo e il minimo. Lo scopo \`e quello di simulare le catene di Markov che
-partono da questi stati. 
+cui il grafo \`e una griglia quadrata di lato $l$. In particolare possiamo
+considerare l'insieme dei vertici come le coordinate intere $(x,y)$ con $0\leq
+x,y < l$. Due vertici sono collegati da un arco se e solo se la loro distanza
+euclidea \`e pari a 1.
+
+Sui possibili stati di un grafo, consideriamo la relazione d'ordine definita da:
+$\sigma \preceq \xi$ se e solo se per ogni vertice $v$ si ha che $\sigma(v) \leq
+\xi(v)$.  Con questa realzione si hanno due stati particolari, le due funzioni
+costanti, che sono il massimo e il minimo. Lo scopo \`e quello di simulare le
+catene di Markov che partono da questi stati. 
 
 Sia $\xi$ una possibile configurazione sul grafo $(V,E)$. Sia inoltre $v$ un
 vertice e consideriamo le configurazioni $\xi_p$ e $\xi_n$ che sono uguali a
@@ -364,7 +378,7 @@ e dunque si ha anche la monotonia di $\Phi$ nel primo argomento.
 Si fornisce in seguito l'implementazione dell'algoritmo descritto in Python. In
 particolare la funzione \texttt{get\_ising} accetta un intero \texttt{N} e il
 valore \texttt{beta} e restituisce una matrice con un campione del modello di
-Ising sul grafo fatto come una griglia quadrata di lato \texttt{N}.
+Ising sul grafo fatto come una griglia quadrata di lato \texttt{N}. 
 
 \begin{lstlisting}
 import numpy as np
@@ -447,11 +461,11 @@ miglioramento del metodo.
 I seguenti risultati sono stati ottenuti sviluppando la traccia in
 \cite{edwards-sokal}.
 
-Consideriamo un grafo non orientato $G=(V,E)$, sia poi $\Sigma$ lo spazio delle
-possibili configurazioni di un modello di Ising su $G$, ossia $\setof{0,1}^V$.
-Siano inoltre $\Omega$ l'insieme dei sottografi di $G$, che identificheremo
-anche con l'insieme delle parti di $E$, e $\bar{\omega}\colon \Sigma
-\longrightarrow \Omega$ la funzione tale che 
+Consideriamo un grafo finito non orientato $G=(V,E)$, sia poi $\Sigma$ lo spazio
+delle possibili configurazioni di un modello di Ising su $G$, ossia
+$\setof{0,1}^V$.  Siano inoltre $\Omega$ l'insieme dei sottografi di $G$, che
+identificheremo anche con l'insieme delle parti di $E$, e $\bar{\omega}\colon
+\Sigma \longrightarrow \Omega$ la funzione tale che 
 \[
     \bar{\omega}(\sigma) = \setof{(i,j)\in E \st \sigma(i) = \sigma(j)}
 \]
@@ -612,7 +626,6 @@ destra se $d=0$, immdiatamente verso il basso se $d=1$.
 import numpy as np
 import numpy.random as rnd
 from collections import deque
-
 
 class Random_gen:
     def __init__(self, N):
